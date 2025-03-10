@@ -71,6 +71,73 @@ class _LoginPageState extends State<LoginPage> {
               onPressed: _signIn,
               child: Text('Se connecter'),
             ),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SignUpPage()),
+                );
+              },
+              child: Text("Créer un compte"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SignUpPage extends StatefulWidget {
+  @override
+  _SignUpPageState createState() => _SignUpPageState();
+}
+
+class _SignUpPageState extends State<SignUpPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final SupabaseClient supabase = Supabase.instance.client;
+
+  Future<void> _signUp() async {
+    try {
+      final AuthResponse res = await supabase.auth.signUp(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+      if (res.user != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur : ${e.toString()}')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(labelText: 'Email'),
+            ),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(labelText: 'Mot de passe'),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _signUp,
+              child: Text("S'inscrire"),
+            ),
           ],
         ),
       ),
@@ -82,7 +149,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(child: Text('Bienvenue sur l'app cinéma !')),
+      body: Center(child: Text('Bienvenue sur l\'app cinéma !')),
     );
   }
 }
