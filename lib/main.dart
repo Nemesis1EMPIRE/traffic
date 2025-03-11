@@ -186,6 +186,88 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
+class SignUpPage extends StatefulWidget {
+  @override
+  _SignUpPageState createState() => _SignUpPageState();
+}
+
+class _SignUpPageState extends State<SignUpPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final SupabaseClient supabase = Supabase.instance.client;
+  bool _isLoading = false;
+
+  Future<void> _signUp() async {
+    setState(() => _isLoading = true);
+    try {
+      final AuthResponse res = await supabase.auth.signUp(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+      if (res.user != null) {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur : ${e.toString()}')),
+      );
+    }
+    setState(() => _isLoading = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          // Fond dégradé
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.blue, Colors.lightBlueAccent],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          ),
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Inscription",
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: _emailController,
+                    decoration: _inputDecoration("Email", Icons.email),
+                  ),
+                  const SizedBox(height: 15),
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: _inputDecoration("Mot de passe", Icons.lock),
+                  ),
+                  const SizedBox(height: 20),
+                  _isLoading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : ElevatedButton(
+                          onPressed: _signUp,
+                          style: _buttonStyle(),
+                          child: Text("S'inscrire", style: TextStyle(fontSize: 16, color: Colors.white)),
+                        ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
