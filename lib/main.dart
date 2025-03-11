@@ -58,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen> {
             children: [
               
               Text(
-                "Traffic",
+                "TRAFFIC",
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               const SizedBox(height: 20),
@@ -364,7 +364,42 @@ class _HomePageState extends State<HomePage> {
 
 
 
-class MoviesPage extends StatelessWidget {
+
+class MoviesPage extends StatefulWidget {
+  @override
+  _MoviesPageState createState() => _MoviesPageState();
+}
+
+class _MoviesPageState extends State<MoviesPage> {
+  late PageController _pageController;
+  int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: 0);
+
+    // Défilement automatique du carrousel
+    Timer.periodic(Duration(seconds: 3), (Timer timer) {
+      if (_currentPage < 2) {
+        _currentPage++;
+      } else {
+        _currentPage = 0;
+      }
+      _pageController.animateToPage(
+        _currentPage,
+        duration: Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -384,6 +419,16 @@ class MoviesPage extends StatelessWidget {
               _buildMoviesSection("Populaires"),
               _buildMoviesSection("Nouveautés"),
               _buildMoviesSection("Tendances"),
+              _buildMoviesSection("Comédie"),
+              _buildMoviesSection("Science Fiction"),
+              _buildMoviesSection("Drame"),
+              _buildMoviesSection("Thriller"),
+              _buildMoviesSection("Action/Aventure"),
+              _buildMoviesSection("Horreur"),
+              _buildMoviesSection("Fantastique"),
+              _buildMoviesSection("Animation"),
+              _buildMoviesSection("Guerre"),
+              _buildMoviesSection("Documentaire"),
             ],
           ),
         ),
@@ -395,6 +440,7 @@ class MoviesPage extends StatelessWidget {
     return Container(
       height: 200,
       child: PageView(
+        controller: _pageController,
         children: [
           Image.asset('assets/featured1.png', fit: BoxFit.cover),
           Image.asset('assets/featured2.png', fit: BoxFit.cover),
@@ -410,7 +456,7 @@ class MoviesPage extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          child: Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
         ),
         Container(
           height: 150,
@@ -418,17 +464,88 @@ class MoviesPage extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             itemCount: 10,
             itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.asset('assets/movie$index.png', width: 100, fit: BoxFit.cover),
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MovieDetailPage(
+                        movieTitle: "$title $index",
+                        movieImage: 'assets/movie$index.png',
+                        movieDescription: "Description du film $title $index...",
+                      ),
+                    ),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.asset('assets/movie$index.png', width: 100, fit: BoxFit.cover),
+                  ),
                 ),
               );
             },
           ),
         ),
       ],
+    );
+  }
+}
+
+// **Page de détails du film**
+class MovieDetailPage extends StatelessWidget {
+  final String movieTitle;
+  final String movieImage;
+  final String movieDescription;
+
+  MovieDetailPage({
+    required this.movieTitle,
+    required this.movieImage,
+    required this.movieDescription,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: Text(movieTitle),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.asset(movieImage, height: 250, fit: BoxFit.cover),
+              ),
+            ),
+            SizedBox(height: 20),
+            Text(
+              movieTitle,
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            SizedBox(height: 10),
+            Text(
+              movieDescription,
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+            SizedBox(height: 20),
+            Center(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                onPressed: () {},
+                child: Text("Regarder"),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
