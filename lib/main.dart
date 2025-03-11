@@ -289,16 +289,107 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
 }
-class HomePage extends StatelessWidget {
+
+
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+  final List<Widget> _pages = [
+    MoviesPage(),
+    SearchPage(),
+    FavoritesPage(),
+    DownloadsPage(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Text(
-          'Bienvenue sur l\'app cinéma !',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      appBar: AppBar(
+        title: Text("Cinéma App"),
+        leading: Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Image.asset("assets/logo.png"), // Logo de l'application
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+            },
+          ),
+        ],
       ),
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.movie), label: "Accueil"),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Recherche"),
+          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: "Favoris"),
+          BottomNavigationBarItem(icon: Icon(Icons.download), label: "Téléchargements"),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.blue,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+}
+
+class MoviesPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text("Films, Séries et Documentaires"),
+    );
+  }
+}
+
+class SearchPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text("Page de Recherche"),
+    );
+  }
+}
+
+class FavoritesPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text("Page des Favoris"),
+    );
+  }
+}
+
+class DownloadsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text("Page des Téléchargements"),
+    );
+  }
+}
+
+class SettingsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Paramètres")),
+      body: Center(child: Text("Page des Paramètres")),
     );
   }
 }
