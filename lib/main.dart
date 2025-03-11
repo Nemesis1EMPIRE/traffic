@@ -342,6 +342,8 @@ class _HomePageState extends State<HomePage> {
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.white,
+        backgroundColor: Colors.deepPurple,
         onTap: _onItemTapped,
       ),
     );
@@ -356,12 +358,6 @@ class MoviesPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Image.asset('assets/logo.png', height: 40),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(
