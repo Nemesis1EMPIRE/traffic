@@ -287,7 +287,7 @@ class _SignUpPageState extends State<SignUpPage> {
       ),
     );
   }
-}
+
 }
 class HomePage extends StatelessWidget {
   @override
