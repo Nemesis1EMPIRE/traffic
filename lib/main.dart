@@ -348,11 +348,74 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+
+
 class MoviesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text("Films, Séries et Documentaires"),
+    return Scaffold(
+      appBar: AppBar(
+        title: Image.asset('assets/logo.png', height: 40),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {},
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildFeaturedCarousel(),
+            _buildMoviesSection("Populaires"),
+            _buildMoviesSection("Nouveautés"),
+            _buildMoviesSection("Tendances"),
+          ],
+        ),
+      ),
+
+    );
+  }
+
+  Widget _buildFeaturedCarousel() {
+    return Container(
+      height: 200,
+      child: PageView(
+        children: [
+          Image.asset('assets/featured1.png', fit: BoxFit.cover),
+          Image.asset('assets/featured2.png', fit: BoxFit.cover),
+          Image.asset('assets/featured3.png', fit: BoxFit.cover),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMoviesSection(String title) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        ),
+        Container(
+          height: 150,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: 10,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.asset('assets/movie$index.png', width: 100, fit: BoxFit.cover),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
