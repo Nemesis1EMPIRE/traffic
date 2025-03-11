@@ -124,8 +124,7 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset('assets/logo.png', height: 100),
-                  const SizedBox(height: 20),
+                 
                   Text(
                     "Connexion",
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
@@ -315,10 +314,15 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Traffic"),
+        backgroundColor: Colors.black,
+        title: Text("Traffic", style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),),
         leading: Padding(
           padding: EdgeInsets.all(8.0),
-          child: Image.asset("assets/logo.png"), // Logo de l'application
+          
         ),
         actions: [
           IconButton(
@@ -332,33 +336,28 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: _pages[_selectedIndex],
-    bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.deepPurple, // Définit le fond violet
-        selectedItemColor: Colors.white, // Couleur des icônes sélectionnées
-        unselectedItemColor: Colors.white70, // Couleur des icônes non sélectionnées
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.movie),
-            label: 'Films',
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.deepPurple, Colors.purpleAccent],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Recherche',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favoris',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.download),
-            label: 'Téléchargements',
-          ),
-        ],
+        ),
+      _pages[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-),
-
+        selectedItemColor: Colors.white, // Couleur de l'icône et du label sélectionnés
+        unselectedItemColor: Colors.black56, // Couleur des icônes et labels non sélectionnés
+        showUnselectedLabels: true, // Afficher les labels même quand non sélectionnés
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.movie), label: "Films"),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Rechercher"),
+          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: "Favoris"),
+          BottomNavigationBarItem(icon: Icon(Icons.download), label: "Téléchargements"),
+        ],
+      ),
     );
   }
 }
@@ -369,9 +368,7 @@ class MoviesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Image.asset('assets/logo.png', height: 40),
-      ),
+      
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
