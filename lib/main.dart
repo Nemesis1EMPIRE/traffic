@@ -344,12 +344,12 @@ class _HomePageState extends State<HomePage> {
             end: Alignment.bottomCenter,
           ),
         ),
-      _pages[_selectedIndex],
+       child: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         selectedItemColor: Colors.white, // Couleur de l'icône et du label sélectionnés
-        unselectedItemColor: Colors.black56, // Couleur des icônes et labels non sélectionnés
+        unselectedItemColor: Colors.black, // Couleur des icônes et labels non sélectionnés
         showUnselectedLabels: true, // Afficher les labels même quand non sélectionnés
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.movie), label: "Films"),
@@ -359,6 +359,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+    )
   }
 }
 
