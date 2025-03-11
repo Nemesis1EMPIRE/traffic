@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
+import 'package:flutter_brightness/flutter_brightness.dart';
+import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:async';
 
@@ -511,7 +514,7 @@ class MovieDetailPage extends StatelessWidget {
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: Text(movieTitle),
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
       ),
       body: Padding(
@@ -536,15 +539,200 @@ class MovieDetailPage extends StatelessWidget {
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
             SizedBox(height: 20),
-            Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-                onPressed: () {},
-                child: Text("Regarder"),
-              ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => VideoPlayerPage(
+                      videoUrl: "https://msvbdururblzqnhyxfqz.supabase.co/storage/v1/object/sign/films/Download%20(5).mp4?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxtcy9Eb3dubG9hZCAoNSkubXA0IiwiaWF0IjoxNzQxNzIxMTU5LCJleHAiOjE3NDIzMjU5NTl9.u0_JszWtDmtIZz3v0yRfZWSZuC-__EiQ-fkAwNoIn6M", // Remplace avec ton URL
+                    ),
+                  ),
+                );
+              },
+              child: Text("Regarder"),
             ),
+
           ],
         ),
+      ),
+    );
+  }
+}
+
+
+class VideoPlayerPage extends StatefulWidget {
+  final String videoUrl;
+  
+  const VideoPlayerPage({Key? key, required this.videoUrl}) : super(key: key);
+
+  @override
+  _VideoPlayerPageState createState() => _VideoPlayerPageState();
+}
+
+class _VideoPlayerPageState extends State<VideoPlayerPage> {
+  late VideoPlayerController _controller;
+  double _brightness = 0.5;
+  double _volume = 0.5;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.network(widget.videoUrl)
+      ..initialize().then((_) {
+        setState(() {});
+        _controller.play();
+      });
+
+    // Récupérer la luminosité et le volume actuels
+    FlutterBrightness.getBrightness().then((value) {
+      setState(() {
+        _brightness = value ?? 0.5;
+      });
+    });
+
+    FlutterVolumeController.getVolume().then((value) {
+      setState(() {
+        _volume = value;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _seekForward() {
+    final position = _controller.value.position + Duration(seconds: 5);
+    _controller.seekTo(position);
+  }
+
+  void _seekBackward() {
+    final position = _controller.value.position - Duration(seconds: 5);
+    _controller.seekTo(position);
+  }
+
+  void _changeBrightness(double value) {
+    setState(() {
+      _brightness = value;
+    });
+    FlutterBrightness.setBrightness(value);
+  }
+
+  void _changeVolume(double value) {
+    setState(() {
+      _volume = value;
+    });
+    FlutterVolumeController.setVolume(value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          _controller.value.isInitialized
+              ? AspectRatio(
+                  aspectRatio: _controller.value.aspectRatio,
+                  child: VideoPlayer(_controller),
+                )
+              : Center(child: CircularProgressIndicator()),
+
+          // Contrôles Vidéo
+          Positioned(
+            bottom: 50,
+            left: 20,
+            right: 20,
+            child: Column(
+              children: [
+                VideoProgressIndicator(
+                  _controller,
+                  allowScrubbing: true,
+                  colors: VideoProgressColors(
+                    playedColor: Colors.red,
+                    bufferedColor: Colors.white70,
+                    backgroundColor: Colors.grey,
+                  ),
+                ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.replay_5, color: Colors.white, size: 30),
+                      onPressed: _seekBackward,
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                        color: Colors.white,
+                        size: 40,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _controller.value.isPlaying ? _controller.pause() : _controller.play();
+                        });
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.forward_5, color: Colors.white, size: 30),
+                      onPressed: _seekForward,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // Barre de luminosité et volume
+          Positioned(
+            top: 50,
+            right: 20,
+            child: Column(
+              children: [
+                Icon(Icons.brightness_6, color: Colors.white),
+                RotatedBox(
+                  quarterTurns: -1,
+                  child: Slider(
+                    value: _brightness,
+                    min: 0,
+                    max: 1,
+                    activeColor: Colors.yellow,
+                    inactiveColor: Colors.white38,
+                    onChanged: _changeBrightness,
+                  ),
+                ),
+                Icon(Icons.volume_up, color: Colors.white),
+                RotatedBox(
+                  quarterTurns: -1,
+                  child: Slider(
+                    value: _volume,
+                    min: 0,
+                    max: 1,
+                    activeColor: Colors.blue,
+                    inactiveColor: Colors.white38,
+                    onChanged: _changeVolume,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Bouton Retour
+          Positioned(
+            top: 30,
+            left: 20,
+            child: IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.white, size: 30),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+        ],
       ),
     );
   }
