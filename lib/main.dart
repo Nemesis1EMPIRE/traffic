@@ -336,7 +336,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: Container(
+     body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Colors.deepPurple, Colors.purpleAccent],
@@ -344,7 +344,8 @@ class _HomePageState extends State<HomePage> {
             end: Alignment.bottomCenter,
           ),
         ),
-       child: _pages[_selectedIndex],
+        child: _pages[_selectedIndex], // Place _pages[_selectedIndex] comme enfant du Container
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -359,7 +360,6 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
-    )
   }
 }
 
