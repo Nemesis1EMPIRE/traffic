@@ -59,7 +59,7 @@ class _SplashScreenState extends State<SplashScreen> {
               Image.asset('assets/logo.png', height: 120), // Affiche le logo
               const SizedBox(height: 20),
               Text(
-                "Cinéma App",
+                "Traffic",
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               const SizedBox(height: 20),
@@ -315,7 +315,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Cinéma App"),
+        title: Text("Traffic"),
         leading: Padding(
           padding: EdgeInsets.all(8.0),
           child: Image.asset("assets/logo.png"), // Logo de l'application
@@ -333,19 +333,32 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.movie), label: "Accueil"),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Recherche"),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: "Favoris"),
-          BottomNavigationBarItem(icon: Icon(Icons.download), label: "Téléchargements"),
+    bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.deepPurple, // Définit le fond violet
+        selectedItemColor: Colors.white, // Couleur des icônes sélectionnées
+        unselectedItemColor: Colors.white70, // Couleur des icônes non sélectionnées
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.movie),
+            label: 'Films',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Recherche',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Favoris',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.download),
+            label: 'Téléchargements',
+          ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.white,
-        backgroundColor: Colors.deepPurple,
         onTap: _onItemTapped,
-      ),
+),
+
     );
   }
 }
