@@ -56,8 +56,7 @@ class _SplashScreenState extends State<SplashScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('assets/logo.png', height: 120), // Affiche le logo
-              const SizedBox(height: 20),
+              
               Text(
                 "Traffic",
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
@@ -314,9 +313,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black,
+       
         title: Text("Traffic", style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),),
@@ -349,7 +348,7 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: Colors.white, // Couleur de l'icône et du label sélectionnés
+        selectedItemColor: Colors.purpleAccent, // Couleur de l'icône et du label sélectionnés
         unselectedItemColor: Colors.black, // Couleur des icônes et labels non sélectionnés
         showUnselectedLabels: true, // Afficher les labels même quand non sélectionnés
         items: [
@@ -369,19 +368,26 @@ class MoviesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildFeaturedCarousel(),
-            _buildMoviesSection("Populaires"),
-            _buildMoviesSection("Nouveautés"),
-            _buildMoviesSection("Tendances"),
-          ],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.deepPurple, Colors.purpleAccent],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildFeaturedCarousel(),
+              _buildMoviesSection("Populaires"),
+              _buildMoviesSection("Nouveautés"),
+              _buildMoviesSection("Tendances"),
+            ],
+          ),
         ),
       ),
-
     );
   }
 
@@ -426,6 +432,7 @@ class MoviesPage extends StatelessWidget {
     );
   }
 }
+
 
 class SearchPage extends StatelessWidget {
   @override
