@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-import 'package:flutter_brightness/flutter_brightness.dart';
+import 'package:screen_brightness/screen_brightness.dart';
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:async';
@@ -561,10 +561,9 @@ class MovieDetailPage extends StatelessWidget {
   }
 }
 
-
 class VideoPlayerPage extends StatefulWidget {
   final String videoUrl;
-  
+
   const VideoPlayerPage({Key? key, required this.videoUrl}) : super(key: key);
 
   @override
@@ -585,17 +584,22 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
         _controller.play();
       });
 
-    // Récupérer la luminosité et le volume actuels
-    FlutterBrightness.getBrightness().then((value) {
-      setState(() {
-        _brightness = value ?? 0.5;
-      });
-    });
+    // Récupérer la luminosité actuelle
+    _getBrightness();
+    _getVolume();
+  }
 
-    FlutterVolumeController.getVolume().then((value) {
-      setState(() {
-        _volume = value;
-      });
+  Future<void> _getBrightness() async {
+    double brightness = await ScreenBrightness().current;
+    setState(() {
+      _brightness = brightness;
+    });
+  }
+
+  Future<void> _getVolume() async {
+    double volume = await FlutterVolumeController.getVolume();
+    setState(() {
+      _volume = volume;
     });
   }
 
@@ -619,7 +623,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
     setState(() {
       _brightness = value;
     });
-    FlutterBrightness.setBrightness(value);
+    ScreenBrightness().setScreenBrightness(value);
   }
 
   void _changeVolume(double value) {
