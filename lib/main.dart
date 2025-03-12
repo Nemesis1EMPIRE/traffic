@@ -595,11 +595,10 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
       _brightness = brightness;
     });
   }
-
   Future<void> _getVolume() async {
-    double volume = await FlutterVolumeController.getVolume();
+    double? volume = await FlutterVolumeController.getVolume();
     setState(() {
-      _volume = volume;
+      _volume = volume ?? 0.5; // Valeur par défaut si null
     });
   }
 
@@ -627,11 +626,14 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   }
 
   void _changeVolume(double value) {
-    setState(() {
-      _volume = value;
-    });
-    FlutterVolumeController.setVolume(value);
-  }
+  setState(() {
+    _volume = value;
+  });
+  FlutterVolumeController.setVolume(value).catchError((error) {
+    print("Erreur de réglage du volume: $error");
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
