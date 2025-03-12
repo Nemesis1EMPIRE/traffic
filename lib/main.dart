@@ -62,10 +62,8 @@ class _SplashScreenState extends State<SplashScreen> {
               
               Text(
                 "TRAFFIC",
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                style: TextStyle(fontSize: 75, fontWeight: FontWeight.bold, color: Colors.white),
               ),
-              const SizedBox(height: 20),
-              CircularProgressIndicator(color: Colors.white), // Animation de chargement
             ],
           ),
         ),
@@ -317,9 +315,9 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
        
-        title: Text("Traffic", style: TextStyle(
+        title: Text("TRAFFIC", style: TextStyle(
                   color: Colors.black,
-                  fontSize: 22,
+                  fontSize: 35,
                   fontWeight: FontWeight.bold,
                 ),),
         leading: Padding(
@@ -745,11 +743,87 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
 }
 
 
-class SearchPage extends StatelessWidget {
+
+class SearchPage extends StatefulWidget {
+  @override
+  _SearchPageState createState() => _SearchPageState();
+}
+
+class _SearchPageState extends State<SearchPage> {
+  TextEditingController _searchController = TextEditingController();
+  List<String> _allItems = ["Vidéo 1", "Vidéo 2", "Vidéo 3", "Film A", "Film B", "Série X"];
+  List<String> _filteredItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredItems = List.from(_allItems);
+  }
+
+  void _search(String query) {
+    setState(() {
+      _filteredItems = _allItems
+          .where((item) => item.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text("Page de Recherche"),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Recherche"),
+        backgroundColor: Colors.black,
+      ),
+      backgroundColor: Colors.black,
+      body: Padding(
+        padding: EdgeInsets.all(10),
+        child: Column(
+          children: [
+            TextField(
+              controller: _searchController,
+              onChanged: _search,
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: "Rechercher...",
+                hintStyle: TextStyle(color: Colors.grey),
+                prefixIcon: Icon(Icons.search, color: Colors.white),
+                filled: true,
+                fillColor: Colors.grey[900],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+            Expanded(
+              child: _filteredItems.isEmpty
+                  ? Center(
+                      child: Text(
+                        "Aucun résultat",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: _filteredItems.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Text(
+                            _filteredItems[index],
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          leading: Icon(Icons.video_library, color: Colors.white),
+                          onTap: () {
+                            // Action lors du clic sur un élément
+                          },
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
