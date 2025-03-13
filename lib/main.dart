@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'dart:ui';
+import 'package:chewie/chemie.dart';
 
 
 void main() async {
@@ -556,8 +557,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => VideoPlayerPage(
-                          videoUrl: "assets/film.mp4", // Lecture depuis les assets
+                        builder: (context) => Video(
                         ),
                       ),
                     );
@@ -587,255 +587,50 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     );
   }
 }
-
-
-class VideoPlayerPage extends StatefulWidget {
-  final String videoUrl;
-
-  const VideoPlayerPage({Key? key, required this.videoUrl}) : super(key: key);
-
+class Video extends StatefulWidget{
+  final VideoPlayerController videoPlayerController;
+  final bool loop;
+  Video({required this.videoPlayerController, this.loop,Key key}): super(key:key);
   @override
-  _VideoPlayerPageState createState() => _VideoPlayerPageState();
+  _VideoState createState() => _videoState();
 }
-
-class _VideoPlayerPageState extends State<VideoPlayerPage> {
-  late VideoPlayerController _controller;
-  bool _isFullScreen = false;
-  double _volume = 0.5;
-  double _brightness = 0.5;
-
+class _VideoState extends State<Video> {
+  chewieController _chewieController;
   @override
-  void initState() {
+  void initState(){
     super.initState();
-    _controller = VideoPlayerController.network(widget.videoUrl)
-      ..initialize().then((_) {
-        setState(() {});
-        _controller.play();
-      });
-    _controller.setVolume(_volume);
+    _chewieController = ChewieController(
+      videoPlayerController: widget.videoPlayerController,
+      looping: widget.loop,
+      aspectRatio: 16/9,
+      autoInitialize: true
+    );
   }
-
+  @override 
+  Widget build(BuildContext content) {
+    return chewie(
+    controller: _chewieController;
+  );
+  }
   @override
-  void dispose() {
-    _controller.dispose();
+  void dispose(){
     super.dispose();
+    widget.videoPlayerController.dispose();
+    _chewieController.dispose();
   }
-
-  void _toggleFullScreen() {
-    setState(() {
-      _isFullScreen = !_isFullScreen;
-    });
-
-    if (_isFullScreen) {
-      SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeRight]);
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    } else {
-      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    }
-  }
-
-  void _seekForward() {
-    _controller.seekTo(_controller.value.position + Duration(seconds: 5));
-  }
-
-  void _seekBackward() {
-    _controller.seekTo(_controller.value.position - Duration(seconds: 5));
-  }
-
-  Future<void> _setBrightness(double value) async {
-    try {
-      await ScreenBrightness().setScreenBrightness(value);
-      setState(() {
-        _brightness = value;
-      });
-    } catch (e) {
-      print("Erreur de luminosité: $e");
-    }
-  }
-
-  String _formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    return "${twoDigits(duration.inMinutes)}:${twoDigits(duration.inSeconds.remainder(60))}";
-  }
-
+}
+class Videoplayer extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: _isFullScreen
-          ? null
-          : AppBar(
-              title: Text("Lecture Vidéo"),
-              backgroundColor: Colors.deepPurple,
-            ),
-      body: Column(
-        children: [
-          // Zone de la vidéo avec contrôles
-          GestureDetector(
-            onDoubleTap: _toggleFullScreen,
-            child: Container(
-              color: Colors.black,
-              height: _isFullScreen ? MediaQuery.of(context).size.height : 250,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  _controller.value.isInitialized
-                      ? AspectRatio(
-                          aspectRatio: _controller.value.aspectRatio,
-                          child: VideoPlayer(_controller),
-                        )
-                      : CircularProgressIndicator(),
-
-                  // Barre de progression et boutons de contrôle
-                  Positioned(
-                    bottom: 20,
-                    left: 10,
-                    right: 10,
-                    child: Column(
-                      children: [
-                        // Barre de progression avec temps
-                        VideoProgressIndicator(
-                          _controller,
-                          allowScrubbing: true,
-                          colors: VideoProgressColors(
-                            playedColor: Colors.deepPurple,
-                            bufferedColor: Colors.grey,
-                            backgroundColor: Colors.white30,
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              _formatDuration(_controller.value.position),
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            Text(
-                              _formatDuration(_controller.value.duration),
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 10),
-
-                        // Boutons de contrôle
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.replay_5, color: Colors.white, size: 30),
-                              onPressed: _seekBackward,
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-                                color: Colors.white,
-                                size: 40,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _controller.value.isPlaying ? _controller.pause() : _controller.play();
-                                });
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.forward_5, color: Colors.white, size: 30),
-                              onPressed: _seekForward,
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                _isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen,
-                                color: Colors.white,
-                                size: 30,
-                              ),
-                              onPressed: _toggleFullScreen,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Contrôle du volume et de la luminosité
-          if (!_isFullScreen) ...[
-            SizedBox(height: 20),
-            _buildSlider(
-              label: "Volume",
-              icon: Icons.volume_up,
-              value: _volume,
-              onChanged: (val) {
-                setState(() {
-                  _volume = val;
-                  _controller.setVolume(val);
-                });
-              },
-            ),
-            _buildSlider(
-              label: "Luminosité",
-              icon: Icons.brightness_6,
-              value: _brightness,
-              onChanged: _setBrightness,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSlider({required String label, required IconData icon, required double value, required Function(double) onChanged}) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.white),
-          Expanded(
-            child: Slider(
-              value: value,
-              onChanged: onChanged,
-              min: 0.0,
-              max: 1.0,
-              activeColor: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMovieCard(String title, String imagePath) {
-    return GestureDetector(
-      onTap: () {
-        // Action lorsqu'on clique sur une suggestion
-      },
-      child: Container(
-        width: 120,
-        margin: EdgeInsets.all(8),
-        child: Column(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.asset(imagePath, height: 150, fit: BoxFit.cover),
-            ),
-            SizedBox(height: 5),
-            Text(
-              title,
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
+  _VideoplayerState createState() => _VideoplayerState();
+}
+class _VideoplayerState extends State<Videoplayer>{
+  @override
+  Widget build(Buildcontext context){
+    return Video(
+      videoPlayerController: videoPlayerController.asset('assets/film.mp4'), 
     );
   }
 }
-
-
-
 
 
 class SearchPage extends StatefulWidget {
