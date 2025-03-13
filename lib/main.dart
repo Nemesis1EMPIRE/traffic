@@ -608,7 +608,7 @@ class _VideoState extends State<Video> {
     _chewieController = ChewieController(
       videoPlayerController: widget.videoPlayerController,
       looping: widget.loop,
-      aspectRatio: 16 / 9,
+     
       autoInitialize: true,
     );
   }
