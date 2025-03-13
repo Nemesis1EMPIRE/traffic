@@ -585,6 +585,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   }
 }
 
+
 class VideoPlayerPage extends StatefulWidget {
   final String videoUrl;
 
@@ -597,6 +598,8 @@ class VideoPlayerPage extends StatefulWidget {
 class _VideoPlayerPageState extends State<VideoPlayerPage> {
   late VideoPlayerController _controller;
   bool _isFullScreen = false;
+  double _volume = 0.5;
+  double _brightness = 0.5;
 
   @override
   void initState() {
@@ -606,6 +609,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
         setState(() {});
         _controller.play();
       });
+    _controller.setVolume(_volume);
   }
 
   @override
@@ -618,16 +622,38 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
     setState(() {
       _isFullScreen = !_isFullScreen;
     });
+
+    if (_isFullScreen) {
+      SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeRight]);
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    } else {
+      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    }
   }
 
   void _seekForward() {
-    final position = _controller.value.position + Duration(seconds: 5);
-    _controller.seekTo(position);
+    _controller.seekTo(_controller.value.position + Duration(seconds: 5));
   }
 
   void _seekBackward() {
-    final position = _controller.value.position - Duration(seconds: 5);
-    _controller.seekTo(position);
+    _controller.seekTo(_controller.value.position - Duration(seconds: 5));
+  }
+
+  Future<void> _setBrightness(double value) async {
+    try {
+      await ScreenBrightness().setScreenBrightness(value);
+      setState(() {
+        _brightness = value;
+      });
+    } catch (e) {
+      print("Erreur de luminosité: $e");
+    }
+  }
+
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    return "${twoDigits(duration.inMinutes)}:${twoDigits(duration.inSeconds.remainder(60))}";
   }
 
   @override
@@ -638,14 +664,13 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
           ? null
           : AppBar(
               title: Text("Lecture Vidéo"),
-              backgroundColor: Colors.black,
-              elevation: 0,
+              backgroundColor: Colors.deepPurple,
             ),
       body: Column(
         children: [
-          // Lecteur vidéo
+          // Zone de la vidéo avec contrôles
           GestureDetector(
-            onTap: _toggleFullScreen,
+            onDoubleTap: _toggleFullScreen,
             child: Container(
               color: Colors.black,
               height: _isFullScreen ? MediaQuery.of(context).size.height : 250,
@@ -659,41 +684,71 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                         )
                       : CircularProgressIndicator(),
 
-                  // Boutons de contrôle
+                  // Barre de progression et boutons de contrôle
                   Positioned(
                     bottom: 20,
                     left: 10,
                     right: 10,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    child: Column(
                       children: [
-                        IconButton(
-                          icon: Icon(Icons.replay_5, color: Colors.white, size: 30),
-                          onPressed: _seekBackward,
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-                            color: Colors.white,
-                            size: 40,
+                        // Barre de progression avec temps
+                        VideoProgressIndicator(
+                          _controller,
+                          allowScrubbing: true,
+                          colors: VideoProgressColors(
+                            playedColor: Colors.deepPurple,
+                            bufferedColor: Colors.grey,
+                            backgroundColor: Colors.white30,
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _controller.value.isPlaying ? _controller.pause() : _controller.play();
-                            });
-                          },
                         ),
-                        IconButton(
-                          icon: Icon(Icons.forward_5, color: Colors.white, size: 30),
-                          onPressed: _seekForward,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _formatDuration(_controller.value.position),
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            Text(
+                              _formatDuration(_controller.value.duration),
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
                         ),
-                        IconButton(
-                          icon: Icon(
-                            _isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                          onPressed: _toggleFullScreen,
+                        SizedBox(height: 10),
+
+                        // Boutons de contrôle
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.replay_5, color: Colors.white, size: 30),
+                              onPressed: _seekBackward,
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _controller.value.isPlaying ? _controller.pause() : _controller.play();
+                                });
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.forward_5, color: Colors.white, size: 30),
+                              onPressed: _seekForward,
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                _isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen,
+                                color: Colors.white,
+                                size: 30,
+                              ),
+                              onPressed: _toggleFullScreen,
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -703,38 +758,52 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
             ),
           ),
 
+          // Contrôle du volume et de la luminosité
           if (!_isFullScreen) ...[
             SizedBox(height: 20),
-
-            // Liste des suggestions de films
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Suggestions pour vous",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-              ),
+            _buildSlider(
+              label: "Volume",
+              icon: Icons.volume_up,
+              value: _volume,
+              onChanged: (val) {
+                setState(() {
+                  _volume = val;
+                  _controller.setVolume(val);
+                });
+              },
             ),
-            SizedBox(height: 10),
-
-            Expanded(
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  _buildMovieCard("Film 1", "assets/movie.png"),
-                  _buildMovieCard("Film 2", "assets/movie1.png"),
-                  _buildMovieCard("Film 3", "assets/movie2.png"),
-                  _buildMovieCard("Film 4", "assets/movie3.png"),
-                ],
-              ),
+            _buildSlider(
+              label: "Luminosité",
+              icon: Icons.brightness_6,
+              value: _brightness,
+              onChanged: _setBrightness,
             ),
           ],
         ],
       ),
     );
   }
+
+  Widget _buildSlider({required String label, required IconData icon, required double value, required Function(double) onChanged}) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.white),
+          Expanded(
+            child: Slider(
+              value: value,
+              onChanged: onChanged,
+              min: 0.0,
+              max: 1.0,
+              activeColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
   Widget _buildMovieCard(String title, String imagePath) {
     return GestureDetector(
@@ -795,9 +864,9 @@ class _SearchPageState extends State<SearchPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Recherche"),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.white,
       ),
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.deepPurple,
       body: Padding(
         padding: EdgeInsets.all(10),
         child: Column(
