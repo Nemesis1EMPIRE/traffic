@@ -558,6 +558,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => Video(
+                           videoPlayerController: VideoPlayerController.asset('assets/film.mp4'),
                         ),
                       ),
                     );
