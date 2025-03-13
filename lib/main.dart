@@ -6,7 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'dart:ui';
-import 'package:chewie/chemie.dart';
+import 'package:chewie/chewie.dart';
 
 
 void main() async {
@@ -587,48 +587,79 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     );
   }
 }
-class Video extends StatefulWidget{
+class Video extends StatefulWidget {
   final VideoPlayerController videoPlayerController;
   final bool loop;
-  Video({required this.videoPlayerController, this.loop,Key key}): super(key:key);
+
+  Video({required this.videoPlayerController, this.loop = false, Key? key})
+      : super(key: key);
+
   @override
-  _VideoState createState() => _videoState();
+  _VideoState createState() => _VideoState();
 }
+
 class _VideoState extends State<Video> {
-  chewieController _chewieController;
+  late ChewieController _chewieController;
+
   @override
-  void initState(){
+  void initState() {
     super.initState();
     _chewieController = ChewieController(
       videoPlayerController: widget.videoPlayerController,
       looping: widget.loop,
-      aspectRatio: 16/9,
-      autoInitialize: true
+      aspectRatio: 16 / 9,
+      autoInitialize: true,
     );
   }
-  @override 
-  Widget build(BuildContext content) {
-    return chewie(
-    controller: _chewieController;
-  );
-  }
+
   @override
-  void dispose(){
-    super.dispose();
-    widget.videoPlayerController.dispose();
+  Widget build(BuildContext context) {
+    return Chewie(
+      controller: _chewieController,
+    );
+  }
+
+  @override
+  void dispose() {
     _chewieController.dispose();
+    widget.videoPlayerController.dispose();
+    super.dispose();
   }
 }
+
 class Videoplayer extends StatefulWidget {
   @override
   _VideoplayerState createState() => _VideoplayerState();
 }
-class _VideoplayerState extends State<Videoplayer>{
+
+class _VideoplayerState extends State<Videoplayer> {
+  late VideoPlayerController _videoPlayerController;
+
   @override
-  Widget build(Buildcontext context){
-    return Video(
-      videoPlayerController: videoPlayerController.asset('assets/film.mp4'), 
+  void initState() {
+    super.initState();
+    _videoPlayerController = VideoPlayerController.asset('assets/film.mp4')
+      ..initialize().then((_) {
+        setState(() {});
+      });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Vidéo Player")),
+      body: Center(
+        child: _videoPlayerController.value.isInitialized
+            ? Video(videoPlayerController: _videoPlayerController)
+            : CircularProgressIndicator(),
+      ),
     );
+  }
+
+  @override
+  void dispose() {
+    _videoPlayerController.dispose();
+    super.dispose();
   }
 }
 
