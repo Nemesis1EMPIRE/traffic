@@ -72,6 +72,7 @@ flutter:
     - assets/movie3.png
     - assets/movie4.png
     - assets/logo.png
+    - assets/film.mp4
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
