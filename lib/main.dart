@@ -4,6 +4,9 @@ import 'package:screen_brightness/screen_brightness.dart';
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:async';
+import 'package:flutter/services.dart';
+import 'dart:ui';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -803,7 +806,6 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
       ),
     );
   }
-}
 
   Widget _buildMovieCard(String title, String imagePath) {
     return GestureDetector(
@@ -831,6 +833,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
     );
   }
 }
+
 
 
 
