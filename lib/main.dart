@@ -554,13 +554,14 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => VideoPage(),
-                      ),
-                    );
-                  },
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => VideoPage(widget.movieTitle), // Passer le titre du film
+    ),
+  );
+},
+
                   child: Text(
                     "Regarder",
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.deepPurple),
@@ -587,9 +588,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   }
 }
 class VideoPage extends StatefulWidget {
-  final String title; // Ajout du paramètre title
-  
-  VideoPage(this.title); // Constructeur prenant un titre en paramètre
+ final String title;
+
+  const VideoPage(this.title, {Key? key}) : super(key: key);
 
   @override
   _VideoPageState createState() => _VideoPageState();
