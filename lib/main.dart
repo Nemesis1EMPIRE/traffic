@@ -557,9 +557,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => Video(
-                           videoPlayerController: VideoPlayerController.asset('assets/film.mp4'),
-                        ),
+                        builder: (context) => VideoPage(),
                       ),
                     );
                   },
@@ -588,82 +586,109 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     );
   }
 }
-class Video extends StatefulWidget {
-  final VideoPlayerController videoPlayerController;
-  final bool loop;
-
-  Video({required this.videoPlayerController, this.loop = false, Key? key})
-      : super(key: key);
+class VideoPage extends StatefulWidget {
+  final String title; // Ajout du paramètre title
+  
+  VideoPage(this.title); // Constructeur prenant un titre en paramètre
 
   @override
-  _VideoState createState() => _VideoState();
+  _VideoPageState createState() => _VideoPageState();
 }
 
-class _VideoState extends State<Video> {
-  late ChewieController _chewieController;
+class _VideoPageState extends State<VideoPage> {
+  late VideoPlayerController _controller;
 
   @override
   void initState() {
     super.initState();
-    _chewieController = ChewieController(
-      videoPlayerController: widget.videoPlayerController,
-      looping: widget.loop,
-     
-      autoInitialize: true,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Chewie(
-      controller: _chewieController,
-    );
+    _controller = VideoPlayerController.asset('assets/film.mp4')
+      ..initialize().then((_) {
+        setState(() {});
+        _controller.play();
+      });
   }
 
   @override
   void dispose() {
-    _chewieController.dispose();
-    widget.videoPlayerController.dispose();
+    _controller.dispose();
     super.dispose();
-  }
-}
-
-class Videoplayer extends StatefulWidget {
-  @override
-  _VideoplayerState createState() => _VideoplayerState();
-}
-
-class _VideoplayerState extends State<Videoplayer> {
-  late VideoPlayerController _videoPlayerController;
-
-  @override
-  void initState() {
-    super.initState();
-    _videoPlayerController = VideoPlayerController.asset('assets/film.mp4')
-      ..initialize().then((_) {
-        setState(() {});
-      });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Vidéo Player")),
-      body: Center(
-        child: _videoPlayerController.value.isInitialized
-            ? Video(videoPlayerController: _videoPlayerController)
-            : CircularProgressIndicator(),
+      backgroundColor: Colors.deepPurple,
+      body: Column(
+        children: [
+          _controller.value.isInitialized
+              ? AspectRatio(
+                  aspectRatio: _controller.value.aspectRatio,
+                  child: VideoPlayer(_controller),
+                )
+              : Center(child: CircularProgressIndicator()),
+          SizedBox(height: 10),
+          Text(widget.title, // Affichage du titre
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          SizedBox(height: 20),
+          Expanded(
+            child: ListView(
+              children: [
+                VideoItem(
+                  thumbnail: 'assets/movie.png',
+                  title: "Film2",
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => VideoPage("Libreville Partie 2")),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
+}
+
+
+class VideoItem extends StatelessWidget {
+  final String thumbnail;
+  final String title;
+  final VoidCallback onTap;
+
+  VideoItem({required this.thumbnail, required this.title, required this.onTap});
 
   @override
-  void dispose() {
-    _videoPlayerController.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
+        margin: EdgeInsets.all(10),
+        child: Column(
+          children: [
+            Image.asset(thumbnail, fit: BoxFit.cover),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
+class VideoPage2 extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Film2')),
+      body: Center(child: Text('Vidéo 2 ici')), // Remplace par le player de la 2e vidéo
+    );
+  }
+}
 
 class SearchPage extends StatefulWidget {
   @override
