@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'package:chewie/chewie.dart';
 
-
+ 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
